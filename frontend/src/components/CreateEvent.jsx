@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Calendar,
   Clock,
@@ -12,10 +13,15 @@ import {
   Image as ImageIcon,
   CheckCircle2,
   AlertCircle,
-  PlusCircle
+  PlusCircle,
+  Edit
 } from 'lucide-react';
 
 const CreateEvent = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = !!id;
+
   const [eventData, setEventData] = useState({
     eventName: '',
     description: '',
@@ -38,6 +44,39 @@ const CreateEvent = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (isEditMode) {
+      fetchEventDetails();
+    }
+  }, [id]);
+
+  const fetchEventDetails = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/admin/events/${id}`);
+
+      // Format dates for input fields
+      const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const offset = date.getTimezoneOffset() * 60000;
+        return (new Date(date - offset)).toISOString().slice(0, 16);
+      };
+
+      setEventData({
+        ...data,
+        startDateTime: formatDate(data.startDateTime),
+        endDateTime: formatDate(data.endDateTime),
+        capacity: data.capacity === null ? '' : data.capacity
+      });
+      setLoading(false);
+    } catch (err) {
+      console.error('Failed to fetch event details', err);
+      setError('Failed to load event details.');
+      setLoading(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setEventData(prev => ({
@@ -56,20 +95,46 @@ const CreateEvent = () => {
     setError(null);
     setLoading(true);
 
-    try {
-      const payload = {
-        ...eventData,
-        capacity: eventData.capacity === '' ? null : Number(eventData.capacity),
-        ticketPrice: Number(eventData.ticketPrice)
-      };
+    const payload = {
+      ...eventData,
+      capacity: eventData.capacity === '' ? null : Number(eventData.capacity),
+      ticketPrice: Number(eventData.ticketPrice)
+    };
 
-      const res = await axios.post('/api/admin/events', payload);
-      setMessage('Event created and published successfully!');
-      console.log(res.data);
-      setLoading(false);
+    console.log(`--- ${isEditMode ? 'Updating' : 'Submitting'} Event ---`);
+    console.log('Payload:', payload);
+
+    if (!window.confirm(`Are you sure you want to ${isEditMode ? 'update' : 'publish'} this event?`)) {
+        setLoading(false);
+        return;
+    }
+
+    try {
+      let res;
+      if (isEditMode) {
+        res = await axios.put(`/api/admin/events/${id}`, payload);
+        setMessage('Event updated successfully!');
+      } else {
+        res = await axios.post('/api/admin/events', payload);
+        setMessage('Event created and published successfully!');
+      }
+
+      console.log('Response:', res);
+      console.log('Event Data:', res.data);
+
+      setTimeout(() => {
+        navigate('/admin');
+      }, 1500);
+
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Failed to create event. Please check your inputs.');
+      console.error('Submission Error:', err);
+      if (err.response) {
+          console.error('Error Response Data:', err.response.data);
+          console.error('Error Status:', err.response.status);
+          setError(err.response.data.message || 'Operation failed.');
+      } else {
+          setError(err.message || 'Operation failed.');
+      }
       setLoading(false);
     }
   };
@@ -88,22 +153,26 @@ const CreateEvent = () => {
         >
           <div>
             <div className="flex items-center space-x-2 text-cyan-400 mb-2">
-              <PlusCircle size={20} />
+              {isEditMode ? <Edit size={20} /> : <PlusCircle size={20} />}
               <span className="uppercase tracking-[0.2em] text-xs font-bold">Admin Portal</span>
             </div>
-            <h1 className="text-5xl font-black text-white">Create New Event</h1>
+            <h1 className="text-5xl font-black text-white">{isEditMode ? 'Edit Event' : 'Create New Event'}</h1>
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 transition-all hover:text-white">
-              Save Draft
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 transition-all hover:text-white"
+            >
+              Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading}
               className="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-600 text-black font-bold shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)] transition-all transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-50"
             >
-              {loading ? 'Publishing...' : 'Publish Event'}
+              {loading ? (isEditMode ? 'Updating...' : 'Publishing...') : (isEditMode ? 'Update Event' : 'Publish Event')}
             </button>
           </div>
         </motion.div>

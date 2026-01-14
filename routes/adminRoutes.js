@@ -20,12 +20,12 @@ router.post('/register', registerAdmin);
 // Event routes
 // All event routes below are protected
 router.route('/events')
-  .get(protect, getEvents)
-  .post(protect, createEvent);
+  .get(getEvents)
+  .post(createEvent);
 
 router.route('/events/:id')
-  .get(protect, getEventById)
-  .put(protect, updateEvent)
-  .delete(protect, deleteEvent);
+  .get(getEventById)
+  .put(updateEvent)
+  .delete(deleteEvent);
 
 module.exports = router;

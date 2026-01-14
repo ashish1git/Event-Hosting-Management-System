@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Admin = require('../models/Admin');
-const generateToken = require('../utils/generateToken'); // We'll create this utility or inline it
+// Token generation is handled inline below
 
 // Auth token generator inline for simplicity if strictly complying to "baked file" minimal output,
 // but sticking to MVC, let's keep it here or import. I'll inline for this snippet to reduce file count if needed,
