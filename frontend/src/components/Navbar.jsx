@@ -29,6 +29,18 @@ const Navbar = () => {
 
         {/* Action */}
         <div className="flex items-center space-x-4">
+           <Link
+            to="/login"
+            className="text-gray-400 hover:text-white font-medium text-sm transition-colors hidden sm:block"
+          >
+            Log In
+          </Link>
+          <Link
+             to="/signup"
+             className="px-5 py-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all text-sm hidden sm:block"
+          >
+             Sign Up
+          </Link>
           <Link
             to="/admin/create"
             className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 transition-all transform hover:-translate-y-0.5 active:scale-95 text-sm"
