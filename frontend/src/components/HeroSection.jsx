@@ -18,7 +18,7 @@ const HeroSection = () => {
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute top-1/4 right-[10%] w-[400px] h-[400px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-      <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
 
         {/* Left Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
@@ -62,7 +62,7 @@ const HeroSection = () => {
 
           {/* Circular Portal Background */}
           {/* Circular Portal Background */}
-          <div className="absolute w-[350px] h-[350px] md:w-[600px] md:h-[600px] rounded-full border border-white/10 bg-black shadow-2xl overflow-hidden animate-scale-in">
+          <div className="absolute w-[350px] h-[350px] md:w-[500px] md:h-[500px] rounded-full border border-white/10 bg-black shadow-2xl overflow-hidden animate-scale-in">
             {/* Video Player - Full Cover */}
             <div className="absolute inset-0 w-full h-full">
               <video
