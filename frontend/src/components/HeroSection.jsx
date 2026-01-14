@@ -23,12 +23,7 @@ const HeroSection = () => {
         {/* Left Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">L</span>
-            </div>
-            <span className="text-white text-2xl font-bold tracking-tight">Luma</span>
-          </div>
+
 
           {/* Heading */}
           <h1 className="text-6xl md:text-8xl font-black leading-tight">
@@ -62,7 +57,7 @@ const HeroSection = () => {
 
           {/* Circular Portal Background */}
           {/* Circular Portal Background */}
-          <div className="absolute w-[350px] h-[350px] md:w-[500px] md:h-[500px] rounded-full border border-white/10 bg-black shadow-2xl overflow-hidden animate-scale-in">
+          <div className="absolute w-[350px] h-[350px] md:w-[580px] md:h-[580px] rounded-full border border-white/10 bg-black shadow-2xl overflow-hidden animate-scale-in">
             {/* Video Player - Full Cover */}
             <div className="absolute inset-0 w-full h-full">
               <video
