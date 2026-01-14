@@ -8,7 +8,7 @@
     --card-bg: #1a1a1a;
     --text-main: #f3f4f6;
     --text-muted: #9ca3af;
-    --input-bg: #350707;
+   
     --border-color: #3f3f46;
 }
 
@@ -117,3 +117,4 @@
 .auth-switch a:hover {
     text-decoration: underline;
 }
+
