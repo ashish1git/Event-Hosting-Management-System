@@ -62,7 +62,7 @@ const HeroSection = () => {
 
           {/* Circular Portal Background */}
           {/* Circular Portal Background */}
-          <div className="absolute w-[350px] h-[350px] md:w-[500px] md:h-[500px] rounded-full border border-white/10 bg-black shadow-2xl overflow-hidden animate-scale-in">
+          <div className="absolute w-[350px] h-[350px] md:w-[600px] md:h-[600px] rounded-full border border-white/10 bg-black shadow-2xl overflow-hidden animate-scale-in">
             {/* Video Player - Full Cover */}
             <div className="absolute inset-0 w-full h-full">
               <video
@@ -80,8 +80,8 @@ const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
               {/* Minimal Player UI Overlay */}
-              <div className="absolute bottom-10 inset-x-0 flex justify-center items-center">
-                 <div className="px-6 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center space-x-4">
+              {/* <div className="absolute bottom-10 inset-x-0 flex justify-center items-center">
+                 <div className="px-1 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center space-x-4">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                        <Play size={14} className="text-white fill-white" />
                     </div>
@@ -89,7 +89,7 @@ const HeroSection = () => {
                        <div className="h-full w-[65%] bg-cyan-400 shadow-[0_0_10px_#00FFFF] animate-progress" />
                     </div>
                  </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

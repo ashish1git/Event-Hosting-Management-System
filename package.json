@@ -1,24 +1,15 @@
 {
-  "name": "event-management-backend",
-  "version": "1.0.0",
-  "description": "Event Management System Backend",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "server": "nodemon server.js",
-    "client": "npm run dev --prefix frontend",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "express-async-handler": "^1.2.0",
-    "jsonwebtoken": "^9.0.0",
-    "mongoose": "^6.8.0"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1",
-    "nodemon": "^2.0.20"
-  }
+    "name": "event-management-root",
+    "private": true,
+    "scripts": {
+        "start": "npm run start --prefix backend",
+        "server": "npm run server --prefix backend",
+        "client": "npm run dev --prefix frontend",
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "install-root": "npm install concurrently",
+        "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
 }
