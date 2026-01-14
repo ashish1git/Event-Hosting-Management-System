@@ -2,6 +2,32 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const axios = require('axios');
+
+// Helper function to send email via Brevo
+const sendEmail = async (to, subject, htmlContent) => {
+  try {
+    const response = await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { email: process.env.BREVO_SENDER_EMAIL || 'noreply@eventsync.com', name: 'EventSync' },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: htmlContent
+      },
+      {
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Email sending failed:', error.response?.data || error.message);
+    throw error;
+  }
+};
 
 // Generate JWT
 const generateToken = (id) => {
@@ -113,18 +139,37 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   await user.save();
 
-  // In a real app, send email here.
-  // For this backend-only task without SMTP config, we return the token/url in response
-  // so the user can test the flow manually.
+  // Create reset url
+  // Use header origin for automatic detection of frontend URL (local or prod)
+  // Fallback to localhost:5173 if header is missing
+  const frontendUrl = req.headers.origin || 'http://localhost:5173';
+  const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
-  const resetUrl = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
+  const message = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #4f46e5;">Password Reset Request</h2>
+      <p>You have requested a password reset. Please click the link below to reset your password:</p>
+      <a href="${resetUrl}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 20px 0;">Reset Password</a>
+      <p>or copy this link: <br> ${resetUrl}</p>
+      <p style="color: #666; font-size: 12px;">This link will expire in 10 minutes.</p>
+    </div>
+  `;
 
-  res.status(200).json({
-    success: true,
-    data: 'Email sent (simulated)',
-    resetToken: resetToken, // Exposed for testing
-    resetUrl: resetUrl // Exposed for testing
-  });
+  try {
+    await sendEmail(user.email, 'Password Reset Request', message);
+
+    res.status(200).json({
+      success: true,
+      data: 'Email sent'
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.status(500);
+    throw new Error('Email could not be sent');
+  }
 });
 
 // @desc    Reset Password

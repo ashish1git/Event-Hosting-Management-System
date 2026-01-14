@@ -28,4 +28,19 @@ router.route('/events/:id')
   .put(updateEvent)
   .delete(deleteEvent);
 
+// Event registration management routes
+const {
+  getEventRegistrations,
+  updateRegistrationStatus,
+  addUserToEvent,
+  removeUserFromEvent,
+  getEventStats
+} = require('../controllers/adminEventController');
+
+router.get('/events/:id/registrations', getEventRegistrations);
+router.get('/events/:id/stats', getEventStats);
+router.put('/events/:eventId/registrations/:registrationId', updateRegistrationStatus);
+router.post('/events/:id/add-user', addUserToEvent);
+router.delete('/events/:eventId/registrations/:registrationId', removeUserFromEvent);
+
 module.exports = router;

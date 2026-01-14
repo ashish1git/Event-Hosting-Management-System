@@ -30,9 +30,14 @@ function Register() {
 
       // Save token/user info
       localStorage.setItem("userInfo", JSON.stringify(data));
+      window.dispatchEvent(new Event('userInfoChange')); // Notify hooks
 
       alert("Registration Successful 🎉");
-      navigate('/');
+      if(data.role === 'admin') {
+          navigate('/admin');
+      } else {
+          navigate('/');
+      }
 
     } catch (error) {
       console.error(error);

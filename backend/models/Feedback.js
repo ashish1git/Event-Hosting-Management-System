@@ -6,11 +6,15 @@ const feedbackSchema = new mongoose.Schema({
     ref: 'Event',
     required: true
   },
-  userEmail: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  attendance: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Attendance',
+    default: null
   },
   rating: {
     type: Number,
@@ -20,7 +24,8 @@ const feedbackSchema = new mongoose.Schema({
   },
   comment: {
     type: String,
-    trim: true
+    trim: true,
+    default: ''
   },
   submittedAt: {
     type: Date,

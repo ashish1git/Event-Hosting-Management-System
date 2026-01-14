@@ -1,8 +1,10 @@
 import React from 'react';
 import { Play, Speaker, Box, Smartphone, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
   const videoRef = React.useRef(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     if (videoRef.current) {
@@ -11,6 +13,20 @@ const HeroSection = () => {
       });
     }
   }, []);
+
+  const handleGatherNow = () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (!userInfo) {
+      navigate('/login');
+    } else {
+      const user = JSON.parse(userInfo);
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard'); // User dashboard
+      }
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-[#121212] flex items-center justify-center overflow-hidden">
@@ -40,7 +56,10 @@ const HeroSection = () => {
 
           {/* CTA Button */}
           <div className="flex items-center space-x-4">
-            <button className="px-8 py-4 bg-gradient-to-r from-pink-500 to-blue-600 text-white font-bold rounded-2xl hover:shadow-[0_0_20px_rgba(255,0,204,0.4)] hover:scale-105 active:scale-95 transition-all duration-200 group">
+            <button
+              onClick={handleGatherNow}
+              className="px-8 py-4 bg-gradient-to-r from-pink-500 to-blue-600 text-white font-bold rounded-2xl hover:shadow-[0_0_20px_rgba(255,0,204,0.4)] hover:scale-105 active:scale-95 transition-all duration-200 group"
+            >
               <span className="flex items-center space-x-2">
                 <span>Gather Now</span>
                 <ExternalLink size={20} />

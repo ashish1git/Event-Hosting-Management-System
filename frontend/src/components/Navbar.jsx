@@ -4,6 +4,28 @@ import { Camera, Calendar, Layout, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
+  const [userInfo, setUserInfo] = React.useState(localStorage.getItem('userInfo'));
+
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      setUserInfo(localStorage.getItem('userInfo'));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userInfoChange', handleStorageChange); // Custom event
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userInfoChange', handleStorageChange);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('userInfo');
+    window.dispatchEvent(new Event('userInfoChange')); // Trigger update
+    window.location.href = '/'; // optional redirect
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -22,31 +44,50 @@ const Navbar = () => {
         {/* Links */}
         <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-gray-400 hover:text-white transition-colors font-medium">Home</Link>
-          <a href="#" className="text-gray-400 hover:text-white transition-colors font-medium">Explore</a>
-          <a href="#" className="text-gray-400 hover:text-white transition-colors font-medium">Pricing</a>
-          <Link to="/admin" className="text-gray-400 hover:text-white transition-colors font-medium">Admin Portal</Link>
+          <Link to="/events" className="text-gray-400 hover:text-white transition-colors font-medium">Events</Link>
+          {userInfo && JSON.parse(userInfo).role !== 'admin' && (
+            <Link to="/dashboard" className="text-gray-400 hover:text-white transition-colors font-medium">My Events</Link>
+          )}
+          {JSON.parse(userInfo || '{}')?.role === 'admin' && (
+             <Link to="/admin" className="text-gray-400 hover:text-white transition-colors font-medium">Admin Portal</Link>
+          )}
         </div>
 
         {/* Action */}
         <div className="flex items-center space-x-4">
-           <Link
-            to="/login"
-            className="text-gray-400 hover:text-white font-medium text-sm transition-colors hidden sm:block"
-          >
-            Log In
-          </Link>
-          <Link
-             to="/signup"
-             className="px-5 py-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all text-sm hidden sm:block"
-          >
-             Sign Up
-          </Link>
-          <Link
-            to="/admin/create"
-            className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 transition-all transform hover:-translate-y-0.5 active:scale-95 text-sm"
-          >
-            Create Event
-          </Link>
+          {!userInfo ? (
+            <>
+              <Link
+                to="/login"
+                className="text-gray-400 hover:text-white font-medium text-sm transition-colors hidden sm:block"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/signup"
+                className="px-5 py-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all text-sm hidden sm:block"
+              >
+                Sign Up
+              </Link>
+            </>
+          ) : (
+            <>
+              {JSON.parse(userInfo).role === 'admin' && (
+                <Link
+                  to="/admin/create"
+                  className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 transition-all transform hover:-translate-y-0.5 active:scale-95 text-sm"
+                >
+                  Create Event
+                </Link>
+              )}
+              <button
+                onClick={handleLogout}
+                className="px-5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl transition-all text-sm"
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
     </motion.nav>

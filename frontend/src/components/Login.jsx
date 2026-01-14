@@ -23,6 +23,7 @@ function Login() {
 
       // Save token/user info
       localStorage.setItem("userInfo", JSON.stringify(data));
+      window.dispatchEvent(new Event('userInfoChange')); // Notify hooks
 
       alert("Login Successful ✅");
 

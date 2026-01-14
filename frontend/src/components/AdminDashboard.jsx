@@ -90,30 +90,40 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {type === 'Upcoming' && (
-          <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-            <button
-              onClick={() => navigate(`/admin/edit/${event._id}`)}
-              className="flex-1 px-4 py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 text-cyan-400 text-sm font-bold transition-all flex items-center justify-center gap-2"
-            >
-              <Edit size={14} /> Edit
-            </button>
-            <button
-              onClick={() => handleDelete(event._id)}
-              className="flex-1 px-4 py-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-red-400 text-sm font-bold transition-all flex items-center justify-center gap-2"
-            >
-              <Trash2 size={14} /> Delete
-            </button>
-          </div>
-        )}
+        {/* Actions */}
+        <div className="flex flex-col gap-2 pt-4 border-t border-white/10">
+          <button
+            onClick={() => navigate(`/admin/events/${event._id}/manage`)}
+            className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 border border-white/10"
+          >
+            <Activity size={14} /> Manage & Scan
+          </button>
 
-        {type !== 'Upcoming' && (
-           <div className="pt-4 border-t border-white/10 text-center">
-             <span className="text-xs font-medium text-gray-500 uppercase tracking-widest">
-               {type === 'Active' ? 'Happening Now' : 'Event Concluded'}
-             </span>
-           </div>
-        )}
+          {type === 'Upcoming' && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate(`/admin/edit/${event._id}`)}
+                className="flex-1 px-4 py-2 rounded-xl bg-white/5 hover:bg-cyan-500/20 text-cyan-400 text-sm font-bold transition-all flex items-center justify-center gap-2"
+              >
+                <Edit size={14} /> Edit
+              </button>
+              <button
+                onClick={() => handleDelete(event._id)}
+                className="flex-1 px-4 py-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-red-400 text-sm font-bold transition-all flex items-center justify-center gap-2"
+              >
+                <Trash2 size={14} /> Delete
+              </button>
+            </div>
+          )}
+
+          {type !== 'Upcoming' && (
+             <div className="mt-2 text-center">
+               <span className="text-xs font-medium text-gray-500 uppercase tracking-widest">
+                 {type === 'Active' ? 'Happening Now' : 'Event Concluded'}
+               </span>
+             </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
