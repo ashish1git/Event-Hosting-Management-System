@@ -13,7 +13,7 @@ if (import.meta.env.MODE === 'production') {
   // In production, use the environment variable.
   // If not set, it defaults to the current origin (which won't work if backend is on a different domain).
   // You MUST set VITE_API_URL in your Vercel project settings.
-  axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://your-backend-service.onrender.com';
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://event-hosting-management-system-1.onrender.com';
   console.log('Production: Setting API Base URL to:', axios.defaults.baseURL);
 } else {
   // In development, leave baseURL empty to use the Vite proxy defined in vite.config.js
