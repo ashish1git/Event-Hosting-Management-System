@@ -14,9 +14,9 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 group">
           <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-            <span className="text-white font-bold text-xl">L</span>
+            <span className="text-white font-bold text-xl">E</span>
           </div>
-          <span className="text-white text-2xl font-bold tracking-tight">Luma</span>
+          <span className="text-white text-2xl font-bold tracking-tight">EventSync</span>
         </Link>
 
         {/* Links */}

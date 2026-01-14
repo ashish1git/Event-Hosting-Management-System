@@ -1,85 +1,83 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../services/api";
+import "../styles/auth.css";
 
-const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+function Login() {
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', formData);
-    // TODO: Implement actual login logic
+    try {
+      // Assuming backend is at /api/users/login as per previous backend setup
+      const { data } = await API.post("/api/users/login", loginData);
+
+      // Save token/user info
+      localStorage.setItem("userInfo", JSON.stringify(data));
+
+      alert("Login Successful ✅");
+
+      // Redirect based on role
+      if(data.role === 'admin') {
+          navigate('/admin');
+      } else {
+          navigate('/'); // or user dashboard
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "Invalid Credentials ❌");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#121212] pt-32 pb-20 px-6 font-sans flex items-center justify-center relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="fixed top-0 left-0 w-[500px] h-[500px] bg-purple-500/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Welcome Back</h2>
+        <p className="auth-subtitle">Login to your account</p>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10"
-      >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-400">Sign in to manage your events</p>
-        </div>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email address"
+            value={loginData.email}
+            onChange={handleChange}
+            required
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-400 text-xs uppercase font-bold tracking-widest mb-2 ml-1">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-cyan-400 transition-all outline-none"
-                placeholder="you@example.com"
-              />
-            </div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={loginData.password}
+            onChange={handleChange}
+            required
+          />
+
+          {/* Forgot Password */}
+          <div className="auth-forgot">
+            <Link to="/forgot-password">Forgot password?</Link>
           </div>
 
-          <div>
-            <label className="block text-gray-400 text-xs uppercase font-bold tracking-widest mb-2 ml-1">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-cyan-400 transition-all outline-none"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-4 bg-gradient-to-r from-cyan-400 to-purple-600 text-black font-bold rounded-xl shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)] transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
-          >
-            Sign In <ArrowRight size={20} />
-          </button>
+          <button type="submit">Login</button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-cyan-400 hover:text-white transition-colors font-bold">
-            Sign Up
-          </Link>
+        <div className="auth-switch">
+          Don’t have an account? <Link to="/signup">Register</Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
-};
+}
 
 export default Login;

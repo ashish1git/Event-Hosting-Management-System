@@ -15,6 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', require('./routes/userRoutes'));
 
 app.get('/', (req, res) => {
   res.send('API is running...');
