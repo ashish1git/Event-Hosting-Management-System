@@ -2,6 +2,9 @@ const asyncHandler = require('express-async-handler');
 const Event = require('../models/Event');
 const EventRegistration = require('../models/EventRegistration');
 const User = require('../models/User');
+const QRCodeModel = require('../models/QRCode');
+const QRCode = require('qrcode');
+const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
 // Helper function to send email via Brevo
@@ -27,6 +30,44 @@ const sendEventEmail = async (to, subject, htmlContent) => {
     console.error('Email sending failed:', error.response?.data || error.message);
     throw error;
   }
+};
+
+// Helper to generate QR
+const generateQRForRegistration = async (registration) => {
+    // Check if exists
+    let qrDoc = await QRCodeModel.findOne({
+        event: registration.event._id,
+        user: registration.user._id,
+        registration: registration._id
+     });
+
+     if (!qrDoc) {
+        // Create Token
+        const qrToken = jwt.sign(
+           {
+             id: registration.user._id,
+             eventId: registration.event._id,
+             registrationId: registration._id,
+             type: 'event_entry'
+           },
+           process.env.JWT_SECRET,
+           { expiresIn: '30d' }
+        );
+
+        // Create DB Entry
+        qrDoc = await QRCodeModel.create({
+            event: registration.event._id,
+            user: registration.user._id,
+            registration: registration._id,
+            token: qrToken,
+            status: 'active',
+            validFrom: new Date(),
+            expiresAt: new Date(new Date().setDate(new Date().getDate() + 30))
+        });
+     }
+
+     // Generate Data URL
+     return await QRCode.toDataURL(qrDoc.token);
 };
 
 // @desc    Get all registrations for an event
@@ -72,6 +113,11 @@ const updateRegistrationStatus = asyncHandler(async (req, res) => {
 
   // Send email notification
   try {
+    let qrImage = null;
+    if (status === 'approved') {
+        qrImage = await generateQRForRegistration(registration);
+    }
+
     const emailHtml = status === 'approved'
       ? `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -84,6 +130,12 @@ const updateRegistrationStatus = asyncHandler(async (req, res) => {
             <p><strong>Event:</strong> ${registration.event.eventName}</p>
             <p><strong>Date:</strong> ${new Date(registration.event.startDateTime).toLocaleString()}</p>
             <p><strong>Location:</strong> ${registration.event.locationType === 'online' ? 'Online' : registration.event.locationValue}</p>
+          </div>
+
+          <div style="text-align: center; margin: 20px 0;">
+            <p><strong>Your Entry QR Code:</strong></p>
+            <img src="${qrImage}" alt="QR Code" style="width: 200px; height: 200px; border: 2px solid #ddd; border-radius: 8px;"/>
+            <p style="font-size: 12px; color: #666;">Please show this QR code at the entrance.</p>
           </div>
 
           <p>We look forward to seeing you at the event!</p>
@@ -102,7 +154,7 @@ const updateRegistrationStatus = asyncHandler(async (req, res) => {
 
     await sendEventEmail(
       registration.user.email,
-      `Registration ${status === 'approved' ? 'Approved' : 'Update'} - ${registration.event.eventName}`,
+      `Registration ${status === 'approved' ? 'Approved & User QR Code' : 'Update'} - ${registration.event.eventName}`,
       emailHtml
     );
   } catch (emailError) {
@@ -121,7 +173,7 @@ const updateRegistrationStatus = asyncHandler(async (req, res) => {
 const addUserToEvent = asyncHandler(async (req, res) => {
   const { userId } = req.body;
 
-  const event = await Event.findById(req.params.id);
+  let event = await Event.findById(req.params.id);
   if (!event) {
     res.status(404);
     throw new Error('Event not found');
@@ -162,8 +214,15 @@ const addUserToEvent = asyncHandler(async (req, res) => {
     paymentStatus: 'not_required'
   });
 
-  // Send email
+  // Re-fetch to populate
+  const populatedRegistration = await EventRegistration.findById(registration._id)
+      .populate('user')
+      .populate('event');
+
+  // Send email with QR
   try {
+    const qrImage = await generateQRForRegistration(populatedRegistration);
+
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #4f46e5;">You've Been Added to an Event!</h2>
@@ -175,6 +234,11 @@ const addUserToEvent = asyncHandler(async (req, res) => {
           <p><strong>Event:</strong> ${event.eventName}</p>
           <p><strong>Date:</strong> ${new Date(event.startDateTime).toLocaleString()}</p>
           <p><strong>Location:</strong> ${event.locationType === 'online' ? 'Online' : event.locationValue}</p>
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <p><strong>Your Entry QR Code:</strong></p>
+            <img src="${qrImage}" alt="QR Code" style="width: 200px; height: 200px; border: 2px solid #ddd; border-radius: 8px;"/>
         </div>
 
         <p>We look forward to seeing you!</p>
@@ -207,6 +271,9 @@ const removeUserFromEvent = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Registration not found');
   }
+
+  // Also remove QR code if exists
+  await QRCodeModel.deleteMany({ registration: registration._id });
 
   await registration.deleteOne();
   res.json({ message: 'User removed from event' });
