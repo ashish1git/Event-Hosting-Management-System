@@ -11,9 +11,9 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center space-x-2 mb-6 pointer-events-auto inline-block">
               <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-pink-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">L</span>
+                <span className="text-white font-bold text-xl">E</span>
               </div>
-              <span className="text-white text-2xl font-bold tracking-tight">Luma</span>
+              <span className="text-white text-2xl font-bold tracking-tight">EventSync</span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
               The next generation event hosting platform. Create, manage, and experience events like never before.
@@ -69,7 +69,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600">
-          <p>© 2026 Luma Inc. All rights reserved.</p>
+          <p>© 2026 EventSync Inc. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/" className="hover:text-gray-400 transition-colors">Privacy Policy</Link>
             <Link to="/" className="hover:text-gray-400 transition-colors">Terms of Service</Link>
