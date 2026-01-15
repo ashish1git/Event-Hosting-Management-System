@@ -13,6 +13,7 @@ import EventsPage from './components/EventsPage';
 import AdminScannerPage from './components/AdminScannerPage';
 import AdminEventDetails from './components/AdminEventDetails';
 import Footer from './components/Footer';
+import './styles/mobile-responsive.css';
 
 function App() {
   return (
