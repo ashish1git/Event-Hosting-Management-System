@@ -1,0 +1,137 @@
+/* Luma Inspired Auth Styles */
+
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* Use Luma background from index.css or fallback */
+    background-color: var(--color-luma-bg, #121212);
+    padding: 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--color-luma-card, #1E1E1E);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.auth-card h2 {
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+    color: #a0a0a0;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+/* Form Styles */
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth-card input {
+    padding: 12px 16px;
+    background-color: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.auth-card input:focus {
+    border-color: var(--color-luma-cyan, #00FFFF);
+    box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.1);
+    background-color: #333;
+}
+
+.auth-card input::placeholder {
+    color: #666;
+}
+
+.auth-card button {
+    padding: 14px;
+    background: linear-gradient(135deg, var(--color-luma-purple, #8A2BE2), var(--color-luma-pink, #FF00CC));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    margin-top: 0.5rem;
+}
+
+.auth-card button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.auth-card button:active {
+    transform: translateY(0);
+}
+
+/* Links and Extras */
+.auth-switch {
+    margin-top: 1.5rem;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.auth-switch a,
+.auth-forgot a {
+    color: var(--color-luma-cyan, #00FFFF);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.auth-switch a:hover,
+.auth-forgot a:hover {
+    text-decoration: underline;
+    color: #fff;
+}
+
+.auth-forgot {
+    text-align: right;
+    font-size: 0.85rem;
+    margin-top: -0.5rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-card h2 {
+        font-size: 1.75rem;
+    }
+}
