@@ -6,11 +6,15 @@ const axios = require('axios');
 
 // Helper function to send email via Brevo
 const sendEmail = async (to, subject, htmlContent) => {
+  if (!process.env.BREVO_API_KEY) {
+    console.error('FATAL CORTEX ERROR: BREVO_API_KEY is missing in environment variables!');
+  }
+
   try {
     const response = await axios.post(
       'https://api.brevo.com/v3/smtp/email',
       {
-        sender: { email: process.env.BREVO_SENDER_EMAIL || 'noreply@eventsync.com', name: 'EventSync' },
+        sender: { email: process.env.BREVO_SENDER_EMAIL || 'chetanshende1111@gmail.com', name: 'EventSync' },
         to: [{ email: to }],
         subject: subject,
         htmlContent: htmlContent
@@ -25,6 +29,10 @@ const sendEmail = async (to, subject, htmlContent) => {
     return response.data;
   } catch (error) {
     console.error('Email sending failed:', error.response?.data || error.message);
+    // Log helpful solution if 401
+    if (error.response?.status === 401) {
+      console.error('CHECK YOUR BREVO_API_KEY. It might be invalid.');
+    }
     throw error;
   }
 };

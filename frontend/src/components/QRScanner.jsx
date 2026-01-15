@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Camera, Keyboard, CheckCircle, XCircle, Loader, Users } from 'lucide-react';
 import API from '../services/api';
+import FeedbackForm from './FeedbackForm';
 
 const QRScanner = ({ eventId, eventName, onScanSuccess: onScanCallback }) => {
   const [scanMode, setScanMode] = useState('camera'); // 'camera' or 'manual'
@@ -10,6 +11,8 @@ const QRScanner = ({ eventId, eventName, onScanSuccess: onScanCallback }) => {
   const [result, setResult] = useState(null);
   const [recentScans, setRecentScans] = useState([]);
   const [scanner, setScanner] = useState(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [lastAttendance, setLastAttendance] = useState(null);
 
   useEffect(() => {
     if (scanMode === 'camera') {
@@ -70,11 +73,12 @@ const QRScanner = ({ eventId, eventName, onScanSuccess: onScanCallback }) => {
         data: data.attendance
       });
 
+      // Store attendance data and show feedback form
+      setLastAttendance(data.attendance);
+      setShowFeedback(true);
+
       // Add to recent scans
       setRecentScans(prev => [data.attendance, ...prev.slice(0, 4)]);
-
-      // Clear result after 3 seconds
-      setTimeout(() => setResult(null), 3000);
 
     } catch (error) {
       setResult({
@@ -197,6 +201,21 @@ const QRScanner = ({ eventId, eventName, onScanSuccess: onScanCallback }) => {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Feedback Form - Show after successful scan */}
+      {showFeedback && lastAttendance && (
+        <div className="space-y-4">
+          <FeedbackForm
+            eventId={eventId}
+            eventName={eventName}
+            onSubmitSuccess={() => {
+              setShowFeedback(false);
+              setLastAttendance(null);
+              setResult(null);
+            }}
+          />
         </div>
       )}
 
