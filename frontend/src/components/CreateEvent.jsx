@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../services/api';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -53,7 +53,7 @@ const CreateEvent = () => {
   const fetchEventDetails = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/admin/events/${id}`);
+      const { data } = await API.get(`/api/admin/events/${id}`);
 
       // Format dates for input fields
       const formatDate = (dateString) => {
@@ -112,10 +112,10 @@ const CreateEvent = () => {
     try {
       let res;
       if (isEditMode) {
-        res = await axios.put(`/api/admin/events/${id}`, payload);
+        res = await API.put(`/api/admin/events/${id}`, payload);
         setMessage('Event updated successfully!');
       } else {
-        res = await axios.post('/api/admin/events', payload);
+        res = await API.post('/api/admin/events', payload);
         setMessage('Event created and published successfully!');
       }
 

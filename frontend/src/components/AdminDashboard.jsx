@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('/api/admin/events');
+      const res = await API.get('/api/admin/events');
       setEvents(res.data);
       setLoading(false);
     } catch (err) {
@@ -39,7 +39,7 @@ const AdminDashboard = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
       try {
-        await axios.delete(`/api/admin/events/${id}`);
+        await API.delete(`/api/admin/events/${id}`);
         setEvents(events.filter(event => event._id !== id));
       } catch (err) {
         console.error(err);
