@@ -67,7 +67,27 @@ const getEventById = asyncHandler(async (req, res) => {
   const event = await Event.findById(req.params.id);
 
   if (event) {
-    res.json(event);
+    // Calculate registration count
+    const EventRegistration = require('../models/EventRegistration');
+    const registrationCount = await EventRegistration.countDocuments({
+      event: event._id,
+      status: { $in: ['approved', 'pending'] }
+    });
+
+    // Calculate event status
+    const now = new Date();
+    const start = new Date(event.startDateTime);
+    const end = new Date(event.endDateTime);
+    let status = 'completed';
+    if (now < start) status = 'upcoming';
+    if (now >= start && now <= end) status = 'live';
+
+    const eventData = event.toObject();
+    eventData.registrationCount = registrationCount;
+    eventData.status = status;
+    eventData.spotsLeft = event.capacity ? event.capacity - registrationCount : null;
+
+    res.json(eventData);
   } else {
     res.status(404);
     throw new Error('Event not found');

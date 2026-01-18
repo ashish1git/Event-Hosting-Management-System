@@ -49,17 +49,30 @@ const EventsPage = () => {
   const handleJoinEvent = async (eventId) => {
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) {
+      window.showToast('Please login first', 'info', 2000);
       navigate('/login');
       return;
     }
 
     try {
       setJoiningEvent(eventId);
-      await API.post(`/api/events/${eventId}/register`);
-      alert('Successfully registered for the event! Check your email for confirmation.');
-      fetchEvents();
+      try {
+        await API.post(`/api/events/${eventId}/register`);
+        window.showToast('Successfully registered! Welcome to the event 🎉', 'success', 2000);
+      } catch (regError) {
+        // If already registered, just proceed to event room
+        if (regError.response?.status === 400 && regError.response?.data?.message?.includes('already')) {
+          window.showToast('You are already registered. Entering event room... 🚀', 'info', 2000);
+        } else {
+          throw regError;
+        }
+      }
+      // Redirect to event detail page
+      setTimeout(() => {
+        navigate(`/events/${eventId}`);
+      }, 500);
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to register for event');
+      window.showToast(error.response?.data?.message || 'Failed to register for event', 'error', 3000);
     } finally {
       setJoiningEvent(null);
     }

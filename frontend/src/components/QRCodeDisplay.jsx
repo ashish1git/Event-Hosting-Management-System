@@ -36,7 +36,7 @@ const QRCodeDisplay = ({ registrationId, eventName }) => {
       setError('');
       const { data } = await API.post(`/api/qr/generate/${registrationId}`);
       setQrData(data.qrCode);
-      alert('✅ QR code generated! Check your email for a copy.');
+      window.showToast('QR code generated! Check your email 📧', 'success', 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to generate QR code');
     } finally {

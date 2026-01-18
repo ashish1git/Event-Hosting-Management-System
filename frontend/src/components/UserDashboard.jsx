@@ -167,8 +167,15 @@ const UserDashboard = () => {
                     {event.registrationStatus === 'approved' && (
                       <div className="space-y-2">
                         <button
-                          onClick={() => setSelectedEvent(selectedEvent === event.registrationId ? null : event.registrationId)}
+                          onClick={() => navigate(`/events/${event._id}`)}
                           className="w-full py-2 bg-gradient-to-r from-cyan-500 to-pink-500 text-white font-semibold rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm"
+                        >
+                          🚀 Enter Event Room
+                        </button>
+
+                        <button
+                          onClick={() => setSelectedEvent(selectedEvent === event.registrationId ? null : event.registrationId)}
+                          className="w-full py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-all flex items-center justify-center gap-2 text-sm"
                         >
                           <QrCode className="w-4 h-4" />
                           {selectedEvent === event.registrationId ? 'Hide QR Code' : 'Show QR Code'}

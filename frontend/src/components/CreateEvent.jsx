@@ -40,8 +40,6 @@ const CreateEvent = () => {
     capacity: ''
   });
 
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -113,10 +111,10 @@ const CreateEvent = () => {
       let res;
       if (isEditMode) {
         res = await API.put(`/api/admin/events/${id}`, payload);
-        setMessage('Event updated successfully!');
+        window.showToast('Event updated successfully! ✅', 'success', 2000);
       } else {
         res = await API.post('/api/admin/events', payload);
-        setMessage('Event created and published successfully!');
+        window.showToast('Event created and published successfully! 🎉', 'success', 2000);
       }
 
       console.log('Response:', res);
@@ -131,9 +129,9 @@ const CreateEvent = () => {
       if (err.response) {
           console.error('Error Response Data:', err.response.data);
           console.error('Error Status:', err.response.status);
-          setError(err.response.data.message || 'Operation failed.');
+          window.showToast(err.response.data.message || 'Operation failed ❌', 'error', 3000);
       } else {
-          setError(err.message || 'Operation failed.');
+          window.showToast(err.message || 'Operation failed ❌', 'error', 3000);
       }
       setLoading(false);
     }
@@ -176,28 +174,6 @@ const CreateEvent = () => {
             </button>
           </div>
         </motion.div>
-
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-8 p-4 bg-green-500/10 border border-green-500/50 rounded-2xl flex items-center space-x-3 text-green-400"
-          >
-            <CheckCircle2 size={20} />
-            <span className="font-medium">{message}</span>
-          </motion.div>
-        )}
-
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-8 p-4 bg-red-500/10 border border-red-500/50 rounded-2xl flex items-center space-x-3 text-red-400"
-          >
-            <AlertCircle size={20} />
-            <span className="font-medium">{error}</span>
-          </motion.div>
-        )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
