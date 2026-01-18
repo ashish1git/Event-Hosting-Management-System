@@ -175,6 +175,12 @@ const getEventDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/events/:id/register
 // @access  Private (User)
 const registerForEvent = asyncHandler(async (req, res) => {
+  // Check if user is an admin
+  if (req.user.role === 'admin') {
+    res.status(403);
+    throw new Error('Admins cannot register for events');
+  }
+
   const event = await Event.findById(req.params.id);
 
   if (!event) {
@@ -186,6 +192,23 @@ const registerForEvent = asyncHandler(async (req, res) => {
   if (event.visibility !== 'public') {
     res.status(403);
     throw new Error('This event is private');
+  }
+
+  // Check if event has ended
+  const now = new Date();
+  const eventEndTime = new Date(event.endDateTime);
+  if (now > eventEndTime) {
+    res.status(400);
+    throw new Error('This event has already ended. You cannot register for past events');
+  }
+
+  // Check registration deadline
+  if (event.registrationDeadline) {
+    const registrationDeadline = new Date(event.registrationDeadline);
+    if (now > registrationDeadline) {
+      res.status(400);
+      throw new Error('Registration deadline has passed. You can no longer register for this event');
+    }
   }
 
   // Check capacity
@@ -219,7 +242,9 @@ const registerForEvent = asyncHandler(async (req, res) => {
   });
 
   // Populate for email and QR generation
-  const populatedReg = await registration.populate('user').populate('event');
+  await registration.populate('user');
+  await registration.populate('event');
+  const populatedReg = registration;
 
   // Send confirmation email
   try {
@@ -320,6 +345,12 @@ const getMyEvents = asyncHandler(async (req, res) => {
 // @route   DELETE /api/events/:id/register
 // @access  Private (User)
 const cancelRegistration = asyncHandler(async (req, res) => {
+  // Check if user is an admin
+  if (req.user.role === 'admin') {
+    res.status(403);
+    throw new Error('Admins cannot cancel event registrations');
+  }
+
   const registration = await EventRegistration.findOne({
     event: req.params.id,
     user: req.user._id

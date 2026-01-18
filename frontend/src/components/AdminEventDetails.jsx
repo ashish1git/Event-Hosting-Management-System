@@ -319,7 +319,7 @@ const AdminEventDetails = () => {
                             {new Date(record.scanTime).toLocaleString()}
                           </td>
                           <td className="p-4 text-gray-400 text-sm">
-                            {record.scannedBy.username || 'Admin'}
+                            {record.scannedBy?.username || record.scannedBy?.fullName || 'Admin'}
                           </td>
                         </tr>
                       ))

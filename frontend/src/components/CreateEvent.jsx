@@ -30,6 +30,7 @@ const CreateEvent = () => {
     visibility: 'public',
     startDateTime: '',
     endDateTime: '',
+    registrationDeadline: '',
     timeZone: 'GMT+05:30',
     locationType: 'offline',
     locationValue: '',
@@ -65,6 +66,7 @@ const CreateEvent = () => {
         ...data,
         startDateTime: formatDate(data.startDateTime),
         endDateTime: formatDate(data.endDateTime),
+        registrationDeadline: formatDate(data.registrationDeadline),
         capacity: data.capacity === null ? '' : data.capacity
       });
       setLoading(false);
@@ -89,8 +91,6 @@ const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
     setLoading(true);
 
     const payload = {
@@ -102,16 +102,11 @@ const CreateEvent = () => {
     console.log(`--- ${isEditMode ? 'Updating' : 'Submitting'} Event ---`);
     console.log('Payload:', payload);
 
-    if (!window.confirm(`Are you sure you want to ${isEditMode ? 'update' : 'publish'} this event?`)) {
-        setLoading(false);
-        return;
-    }
-
     try {
       let res;
       if (isEditMode) {
         res = await API.put(`/api/admin/events/${id}`, payload);
-        window.showToast('Event updated successfully! ✅', 'success', 2000);
+        window.showToast('Event updated successfully! ✅ Users have been notified of changes.', 'success', 3000);
       } else {
         res = await API.post('/api/admin/events', payload);
         window.showToast('Event created and published successfully! 🎉', 'success', 2000);
@@ -122,7 +117,7 @@ const CreateEvent = () => {
 
       setTimeout(() => {
         navigate('/admin');
-      }, 1500);
+      }, isEditMode ? 2000 : 1500);
 
     } catch (err) {
       console.error('Submission Error:', err);
@@ -174,6 +169,22 @@ const CreateEvent = () => {
             </button>
           </div>
         </motion.div>
+
+        {isEditMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl flex items-start gap-3"
+          >
+            <CheckCircle2 className="text-blue-400 flex-shrink-0 mt-1" size={20} />
+            <div>
+              <p className="text-blue-300 font-semibold">📢 Editing Live Event</p>
+              <p className="text-blue-200 text-sm mt-1">
+                All registered users will be notified about any changes you make to the event details (title, date, time, location, description, etc.).
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -286,6 +297,21 @@ const CreateEvent = () => {
                         required
                       />
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-400 text-sm font-medium mb-3 uppercase tracking-widest">Registration Deadline (Optional)</label>
+                  <div className="relative">
+                    <input
+                      type="datetime-local"
+                      name="registrationDeadline"
+                      value={eventData.registrationDeadline}
+                      onChange={handleChange}
+                      className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white focus:border-purple-500 transition-all outline-none font-medium"
+                      placeholder="Leave empty for 1 hour before event start"
+                    />
+                    <p className="text-gray-500 text-xs mt-2">Users cannot register after this deadline. Default: 1 hour before event start</p>
                   </div>
                 </div>
 

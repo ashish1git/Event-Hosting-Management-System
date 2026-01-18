@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Calendar, MapPin, Clock, Share2, User } from 'lucide-react';
+import { ArrowLeft, Users, Calendar, MapPin, Clock, Share2, User, LogIn, RefreshCw } from 'lucide-react';
 import API from '../services/api';
+import QRCodeDisplay from './QRCodeDisplay';
 
 const EventDetailPage = () => {
   const { eventId } = useParams();
@@ -12,10 +13,33 @@ const EventDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showAttendees, setShowAttendees] = useState(false);
   const [isViewingEvent, setIsViewingEvent] = useState(true);
+  const [userRegistration, setUserRegistration] = useState(null);
+  const [registering, setRegistering] = useState(false);
+
+  const handleRegister = async () => {
+    try {
+      setRegistering(true);
+      console.log(`📝 Registering for event ${eventId}...`);
+      await API.post(`/api/events/${eventId}/register`);
+      console.log(`✅ Registration successful!`);
+      window.showToast('Successfully registered! 🎉', 'success', 2000);
+      // Refresh immediately to get new registration status
+      setTimeout(() => {
+        console.log(`🔄 Refreshing event details after registration...`);
+        fetchEventDetails();
+      }, 500);
+    } catch (error) {
+      console.error('❌ Registration error:', error);
+      window.showToast(error.response?.data?.message || 'Failed to register', 'error', 3000);
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   // Smart Polling: Only poll when user is actively viewing event
   useEffect(() => {
     // Initial fetch
+    console.log(`🚀 EventDetailPage mounted, fetching initial data for event ${eventId}`);
     fetchEventDetails();
     const userData = localStorage.getItem('userInfo');
     if (userData) {
@@ -25,20 +49,21 @@ const EventDetailPage = () => {
     // Mark as viewing event
     setIsViewingEvent(true);
 
-    // Smart polling: Only runs when isViewingEvent is true
+    // Smart polling: Moderate polling to avoid server overload (every 30 seconds)
+    // Users can click refresh button for immediate updates
     const interval = setInterval(() => {
       if (isViewingEvent) {
+        console.log(`⏰ Polling for status updates (every 30 seconds)...`);
         fetchEventDetails();
-        console.log('⏰ Smart poll: Fetching event details (every 45 seconds)');
       }
-    }, 45000); // Poll every 45 seconds (safe for free tier)
+    }, 30000); // Poll every 30 seconds - safe for 100+ concurrent users
 
     // Cleanup function
     return () => {
       setIsViewingEvent(false);
       clearInterval(interval);
     };
-  }, []);
+  }, [eventId]);
 
   // Stop polling when user navigates away
   useEffect(() => {
@@ -58,6 +83,45 @@ const EventDetailPage = () => {
       setLoading(true);
       const { data } = await API.get(`/api/events/${eventId}`);
       setEvent(data);
+      console.log('✅ Event fetched:', data._id, data.eventName);
+      
+      // Fetch user's registration for this event DIRECTLY from endpoint
+      try {
+        console.log(`🔍 Fetching registrations from /api/events/user/my-events...`);
+        const response = await API.get('/api/events/user/my-events');
+        console.log('📋 All user registrations:', response.data);
+        
+        // Find this event
+        const myEventsList = Array.isArray(response.data) ? response.data : [];
+        console.log(`🔎 Looking for event ID: ${eventId} in ${myEventsList.length} registrations`);
+        
+        let found = false;
+        for (let evt of myEventsList) {
+          console.log(`  - Event ID: ${evt._id}, Name: ${evt.eventName}, Status: ${evt.registrationStatus}`);
+          if (evt._id === eventId) {
+            console.log(`✅ FOUND MATCHING EVENT!`);
+            setUserRegistration({
+              status: evt.registrationStatus,
+              registrationId: evt.registrationId,
+              registrationDate: evt.registrationDate
+            });
+            console.log(`✅ Registration set - Status: ${evt.registrationStatus}, RegID: ${evt.registrationId}`);
+            found = true;
+            break;
+          }
+        }
+        
+        if (!found) {
+          console.log(`❌ No matching registration found for this event`);
+          setUserRegistration(null);
+        }
+      } catch (err) {
+        console.error('❌ Error fetching registration:', err.message);
+        if (err.response) {
+          console.error('API Error:', err.response.status, err.response.data);
+        }
+        setUserRegistration(null);
+      }
       
       // Fetch attendees
       try {
@@ -65,7 +129,6 @@ const EventDetailPage = () => {
         setAttendees(attendeesData.data || []);
       } catch (err) {
         console.error('Error fetching attendees:', err);
-        // Not critical - continue without attendees
       }
     } catch (error) {
       console.error('Error fetching event:', error);
@@ -264,7 +327,19 @@ const EventDetailPage = () => {
           <div className="md:col-span-1">
             {/* Your Details */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6 sticky top-32">
-              <h3 className="text-lg font-bold text-white mb-4">Your Details</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white">Your Details</h3>
+                <button
+                  onClick={() => {
+                    console.log(`🔄 Manual refresh requested`);
+                    fetchEventDetails();
+                  }}
+                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                  title="Refresh status"
+                >
+                  <RefreshCw className="w-4 h-4 text-cyan-400" />
+                </button>
+              </div>
               
               <div className="mb-6">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-400 to-pink-400 flex items-center justify-center mb-4">
@@ -272,17 +347,76 @@ const EventDetailPage = () => {
                 </div>
                 <p className="text-white font-semibold">{userInfo?.fullName}</p>
                 <p className="text-gray-400 text-sm truncate">{userInfo?.email}</p>
-                <p className="text-cyan-400 text-xs mt-2 bg-cyan-400/10 px-2 py-1 rounded inline-block">
-                  ✓ Registered
-                </p>
+                
+                {/* Registration Status Badge */}
+                {userRegistration && (
+                  <div className="mt-3">
+                    {userRegistration.status === 'pending' && (
+                      <p className="text-yellow-400 text-xs bg-yellow-400/10 px-3 py-1.5 rounded-full inline-block border border-yellow-400/30">
+                        ⏳ Pending Approval
+                      </p>
+                    )}
+                    {userRegistration.status === 'approved' && (
+                      <p className="text-green-400 text-xs bg-green-400/10 px-3 py-1.5 rounded-full inline-block border border-green-400/30">
+                        ✓ Approved
+                      </p>
+                    )}
+                    {userRegistration.status === 'rejected' && (
+                      <p className="text-red-400 text-xs bg-red-400/10 px-3 py-1.5 rounded-full inline-block border border-red-400/30">
+                        ✗ Rejected
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* QR Code Display */}
-              <div className="mb-6 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-                <p className="text-cyan-400 text-sm">
-                  🎟️ QR code will be available after you check in to the event.
-                </p>
-              </div>
+              {userRegistration?.status === 'approved' && userRegistration?.registrationId ? (
+                <div className="mb-6">
+                  <p className="text-green-400 text-xs mb-2">✅ Your registration is APPROVED</p>
+                  <QRCodeDisplay 
+                    registrationId={userRegistration.registrationId} 
+                    eventName={event?.eventName}
+                  />
+                </div>
+              ) : null}
+              
+              {userRegistration?.status === 'pending' ? (
+                <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-yellow-400 text-sm mb-3">
+                    ⏳ Your registration is pending admin approval. You'll receive an email with your QR code once approved.
+                  </p>
+                  <button
+                    onClick={() => fetchEventDetails()}
+                    className="w-full px-3 py-2 bg-yellow-500/20 border border-yellow-500 text-yellow-400 text-xs rounded-lg hover:bg-yellow-500/30 transition"
+                  >
+                    Check for Approval
+                  </button>
+                </div>
+              ) : null}
+
+              {userRegistration?.status === 'rejected' ? (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400 text-sm">
+                    ✗ Your registration was not approved.
+                  </p>
+                </div>
+              ) : null}
+
+              {!userRegistration ? (
+                <div className="mb-6 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+                  <p className="text-cyan-400 text-sm mb-3">
+                    🎟️ Register for this event to receive your QR code.
+                  </p>
+                  <button
+                    onClick={handleRegister}
+                    disabled={registering}
+                    className="w-full px-4 py-2 bg-cyan-500/30 border border-cyan-400 text-cyan-400 rounded-lg hover:bg-cyan-500/50 transition font-semibold disabled:opacity-50"
+                  >
+                    {registering ? 'Registering...' : 'Register Now'}
+                  </button>
+                </div>
+              ) : null}
 
               {/* Action Buttons */}
               <div className="space-y-3">

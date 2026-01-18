@@ -163,6 +163,22 @@ const UserDashboard = () => {
                       <span className="text-sm font-semibold">{StatusBadge.text}</span>
                     </div>
 
+                    {/* Pending Status Message */}
+                    {event.registrationStatus === 'pending' && (
+                      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 mb-4 text-sm">
+                        <p className="text-yellow-300">⏳ <strong>Awaiting Admin Approval</strong></p>
+                        <p className="text-yellow-200 text-xs mt-1">Your registration is pending. Once approved by an admin, you'll receive an email with your QR code.</p>
+                      </div>
+                    )}
+
+                    {/* Rejected Status Message */}
+                    {event.registrationStatus === 'rejected' && (
+                      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4 text-sm">
+                        <p className="text-red-300">❌ <strong>Registration Rejected</strong></p>
+                        <p className="text-red-200 text-xs mt-1">Unfortunately, your registration for this event could not be approved.</p>
+                      </div>
+                    )}
+
                     {/* Action Buttons */}
                     {event.registrationStatus === 'approved' && (
                       <div className="space-y-2">
