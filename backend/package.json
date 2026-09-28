@@ -4,6 +4,7 @@
   "description": "Event Management System Backend",
   "main": "server.js",
   "scripts": {
+    "build": "echo \"No build step required for this Node.js backend\"",
     "start": "node server.js",
     "server": "nodemon server.js"
   },
