@@ -39,7 +39,7 @@ const HeroSection = () => {
         {/* Left Content */}
         <div className="flex flex-col space-y-8 animate-fade-in">
           {/* Logo */}
-
+<br /><br /><br />
 
           {/* Heading */}
           <h1 className="text-6xl md:text-8xl font-black leading-tight">

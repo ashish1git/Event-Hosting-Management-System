@@ -1,0 +1,243 @@
+/* Mobile-First Responsive Utilities */
+
+/* Base font sizes - Mobile first */
+:root {
+    --font-xs: 0.75rem;
+    /* 12px */
+    --font-sm: 0.875rem;
+    /* 14px */
+    --font-base: 1rem;
+    /* 16px */
+    --font-lg: 1.125rem;
+    /* 18px */
+    --font-xl: 1.25rem;
+    /* 20px */
+    --font-2xl: 1.5rem;
+    /* 24px */
+    --font-3xl: 1.875rem;
+    /* 30px */
+    --font-4xl: 2.25rem;
+    /* 36px */
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+    :root {
+        --font-2xl: 1.75rem;
+        /* 28px */
+        --font-3xl: 2rem;
+        /* 32px */
+        --font-4xl: 2.5rem;
+        /* 40px */
+    }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+    :root {
+        --font-2xl: 2rem;
+        /* 32px */
+        --font-3xl: 2.25rem;
+        /* 36px */
+        --font-4xl: 3rem;
+        /* 48px */
+    }
+}
+
+/* Mobile-friendly spacing */
+.mobile-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+    .mobile-container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* Responsive text sizes */
+.text-responsive-xs {
+    font-size: var(--font-xs);
+}
+
+.text-responsive-sm {
+    font-size: var(--font-sm);
+}
+
+.text-responsive-base {
+    font-size: var(--font-base);
+}
+
+.text-responsive-lg {
+    font-size: var(--font-lg);
+}
+
+.text-responsive-xl {
+    font-size: var(--font-xl);
+}
+
+.text-responsive-2xl {
+    font-size: var(--font-2xl);
+}
+
+.text-responsive-3xl {
+    font-size: var(--font-3xl);
+}
+
+.text-responsive-4xl {
+    font-size: var(--font-4xl);
+}
+
+/* Mobile-friendly buttons */
+.btn-mobile {
+    padding: 0.75rem 1rem;
+    font-size: var(--font-sm);
+    min-height: 44px;
+    /* iOS touch target */
+}
+
+@media (min-width: 768px) {
+    .btn-mobile {
+        padding: 0.875rem 1.5rem;
+        font-size: var(--font-base);
+    }
+}
+
+/* Mobile-friendly forms */
+.input-mobile {
+    padding: 0.75rem;
+    font-size: var(--font-base);
+    min-height: 44px;
+}
+
+@media (min-width: 768px) {
+    .input-mobile {
+        padding: 0.875rem 1rem;
+    }
+}
+
+/* Mobile-friendly cards */
+.card-mobile {
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+@media (min-width: 768px) {
+    .card-mobile {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+    }
+}
+
+/* Touch-friendly spacing */
+.touch-target {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Responsive grid */
+.grid-mobile {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .grid-mobile {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-mobile {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* Hide on mobile */
+.hide-mobile {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .hide-mobile {
+        display: block;
+    }
+}
+
+/* Show only on mobile */
+.show-mobile {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .show-mobile {
+        display: none;
+    }
+}
+
+/* Mobile-friendly table */
+.table-mobile {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent horizontal scroll */
+body {
+    overflow-x: hidden;
+}
+
+/* Mobile-friendly modal */
+.modal-mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+    .modal-mobile {
+        padding: 2rem;
+    }
+}
+
+/* Safe area for notched devices */
+@supports (padding: max(0px)) {
+    .safe-area-inset {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+        padding-top: max(1rem, env(safe-area-inset-top));
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better tap highlight */
+* {
+    -webkit-tap-highlight-color: rgba(79, 70, 229, 0.1);
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
